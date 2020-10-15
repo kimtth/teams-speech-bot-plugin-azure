@@ -1,0 +1,66 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.7",
+  "version": "1.0.1",
+  "id": "1963bed9-eee8-4d4a-a77c-b993fe4b02a6",
+  "packageName": "tcs.japan.teams.ai-caption",
+  "developer": {
+    "name": "skeletonKim",
+    "websiteUrl": "https://www.tcs.com",
+    "privacyUrl": "https://www.teams.com/privacy",
+    "termsOfUseUrl": "https://www.teams.com/termsofuser"
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "name": {
+    "short": "ai-caption-bot",
+    "full": "ai-caption-bot"
+  },
+  "description": {
+    "short": "ai-caption-bot",
+    "full": "ai-caption-bot"
+  },
+  "accentColor": "#FFFFFF",
+  "bots": [
+    {
+      "botId": "1963bed9-eee8-4d4a-a77c-b993fe4b02a6",
+      "scopes": [
+        "personal",
+        "groupchat",
+        "team"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": [
+            "personal",
+            "groupchat",
+            "team"
+          ],
+          "commands": [
+            {
+              "title": "Start Recording",
+              "description": "Start Voice Recognition."
+            },
+            {
+              "title": "Stop Recording",
+              "description": "Stop Voice Recognition."
+            },
+            {
+              "title": "Help",
+              "description": "Display all commands."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": []
+}

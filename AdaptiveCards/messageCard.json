@@ -1,0 +1,28 @@
+{
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "type": "AdaptiveCard",
+  "version": "1.0",
+  "body": [
+    {
+      "type": "Container",
+      "minHeight": "100px",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "This is some text"
+        },
+        {
+          "type": "Container",
+          "style": "emphasis",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Contained container - emphasis",
+              "color": "dark"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
