@@ -7,10 +7,10 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.BotBuilderSamples.Bots;
+using Microsoft.BotBuilder.Bots;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.BotBuilderSamples
+namespace Microsoft.BotBuilder
 {
     public class Startup
     {

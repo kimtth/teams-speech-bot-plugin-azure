@@ -14,7 +14,8 @@ namespace SpeechAPI
         private static SpeechRecognizer speechRecognizer;
         private string _speechSubscriptionKey;
         private string _speechServiceRegion;
-        public delegate void SendMessageDelegate(string msg);
+        private delegate void SendMessageCallback(HeroCard card, string msg);
+        private delegate void SendMessageUpdateCallback(HeroCard card, string msg);
 
         public SpeechTextRecognizer(IConfiguration config)
         {
@@ -56,13 +57,33 @@ namespace SpeechAPI
         public async Task RecognizeSpeechContinualAsyncStart(ITurnContext<IMessageActivity> turnContext)
         {
             var config = SpeechConfig.FromSubscription(_speechSubscriptionKey, _speechServiceRegion);
-            string[] languages = { "ja-JP", "en-US", "en-IN", "en-GB" };
+            string[] languages = { "ja-JP" }; //, "en-US", "en-IN", "en-GB" };
             var language = AutoDetectSourceLanguageConfig.FromLanguages(languages);
             var stopRecognition = new TaskCompletionSource<int>();
+            HeroCard card = null;
+            bool createCard = true;
 
-            SendMessageDelegate msgDelegate = (string message) =>
+            SendMessageCallback msgDelegate = async (HeroCard card, string message) =>
             {
-                turnContext.SendActivityAsync(message);
+                var userName = turnContext.Activity.From.Name;
+                card.Text = message;
+                card.Subtitle = card.Subtitle + $"<{userName}>";
+                var activity = MessageFactory.Attachment(card.ToAttachment());
+
+                await turnContext.SendActivityAsync(activity);
+            };
+
+            SendMessageUpdateCallback updateDelegate = async (HeroCard card, string message) =>
+            {
+                card.Title = "I've been updated";
+                card.Text = message;
+                var activity = MessageFactory.Attachment(card.ToAttachment());
+                if(activity.Id == null)
+                {
+                    activity.Id = turnContext.Activity.ReplyToId;
+                }
+
+                await turnContext.UpdateActivityAsync(activity);
             };
 
             using (var audioConfig = AudioConfig.FromDefaultMicrophoneInput())
@@ -73,7 +94,21 @@ namespace SpeechAPI
                     // Subscribes to events.
                     recognizer.Recognizing += (s, e) =>
                     {
-                        Console.WriteLine($"RECOGNIZING: Text={e.Result.Text}");
+                        string message = e.Result.Text;
+                        Console.WriteLine($"RECOGNIZING: Text={message}");
+
+                        //Kim: Maybe for the processing speed of async, the update process seems to be delayed than recognizing.
+                        //it should find a workaround bypassing and pending process before submitting it.
+                        //if (createCard)
+                        //{
+                        //    card = new HeroCardCaption().createCard();
+                        //    msgDelegate(card, message);
+                        //    createCard = false;
+                        //}
+                        //else
+                        //{
+                        //    updateDelegate(card, message);
+                        //}
                     };
 
                     recognizer.Recognized += (s, e) =>
@@ -81,8 +116,13 @@ namespace SpeechAPI
                         if (e.Result.Reason == ResultReason.RecognizedSpeech)
                         {
                             string message = e.Result.Text;
-                            msgDelegate(message);
-                            Console.WriteLine($"RECOGNIZED: Text={e.Result.Text}");
+
+                            card = new HeroCardCaption().createCard();
+                            msgDelegate(card, message);
+
+                            //updateDelegate(card, message);
+                            //createCard = true;
+                            Console.WriteLine($"RECOGNIZED: Text={message}");
                         }
                         else if (e.Result.Reason == ResultReason.NoMatch)
                         {
