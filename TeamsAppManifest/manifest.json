@@ -1,7 +1,7 @@
 {
-  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.7/MicrosoftTeams.schema.json",
-  "manifestVersion": "1.7",
-  "version": "1.0.1",
+  "$schema": "https://github.com/OfficeDev/microsoft-teams-app-schema/blob/preview/DevPreview/MicrosoftTeams.schema.json",
+  "manifestVersion": "devPreview",
+  "version": "1.0.0",
   "id": "1963bed9-eee8-4d4a-a77c-b993fe4b02a6",
   "packageName": "tcs.japan.teams.ai-caption",
   "developer": {
@@ -11,51 +11,89 @@
     "termsOfUseUrl": "https://www.teams.com/termsofuser"
   },
   "icons": {
-    "outline": "outline.png",
-    "color": "color.png"
+    "color": "color.png",
+    "outline": "outline.png"
   },
   "name": {
     "short": "ai-caption-bot",
-    "full": "ai-caption-bot"
+    "full": ""
   },
   "description": {
-    "short": "ai-caption-bot",
-    "full": "ai-caption-bot"
+    "short": "demo (ai-caption)",
+    "full": "demo (ai-caption) full description"
   },
   "accentColor": "#FFFFFF",
   "bots": [
     {
       "botId": "1963bed9-eee8-4d4a-a77c-b993fe4b02a6",
       "scopes": [
-        "personal",
         "groupchat",
-        "team"
+        "team",
+        "personal"
       ],
-      "supportsFiles": false,
-      "isNotificationOnly": false,
       "commandLists": [
         {
           "scopes": [
-            "personal",
-            "groupchat",
+            "personal"
+          ],
+          "commands": [
+            {
+              "title": "help",
+              "description": "help"
+            },
+            {
+              "title": "start record",
+              "description": "start record"
+            },
+            {
+              "title": "stop record",
+              "description": "stop record"
+            }
+          ]
+        },
+        {
+          "scopes": [
             "team"
           ],
           "commands": [
             {
-              "title": "Start Recording",
-              "description": "Start Voice Recognition."
+              "title": "help",
+              "description": "help"
             },
             {
-              "title": "Stop Recording",
-              "description": "Stop Voice Recognition."
+              "title": "start record",
+              "description": "start record"
             },
             {
-              "title": "Help",
-              "description": "Display all commands."
+              "title": "stop record",
+              "description": "stop record"
+            }
+          ]
+        },
+        {
+          "scopes": [
+            "groupchat"
+          ],
+          "commands": [
+            {
+              "title": "help",
+              "description": "help"
+            },
+            {
+              "title": "start record",
+              "description": "start record"
+            },
+            {
+              "title": "stop record",
+              "description": "stop record"
             }
           ]
         }
-      ]
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "supportsCalling": true,
+      "supportsVideo": true
     }
   ],
   "permissions": [

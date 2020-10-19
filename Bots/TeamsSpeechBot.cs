@@ -58,10 +58,10 @@ namespace Microsoft.BotBuilder.Bots
             {
                 await NotificationActivityAsync(turnContext, cancellationToken);
             }
-            else if (text.Contains("adaptive"))
-            {
-                await AdaptiveCardDisplayActivityAsync(turnContext, cancellationToken);
-            }
+            //else if (text.Contains("adaptive"))
+            //{
+            //    await AdaptiveCardDisplayActivityAsync(turnContext, cancellationToken);
+            //}
             else if (text.Contains("delete"))
             {
                 await DeleteCardActivityAsync(turnContext, cancellationToken);
@@ -138,7 +138,7 @@ namespace Microsoft.BotBuilder.Bots
             if (speechRecognizer != null)
                 await speechRecognizer.RecognizeSpeechContinualAsyncStop();
 
-            var message = MessageFactory.Text($"Let me stop recording !!");
+            var message = MessageFactory.Text($"Stop recording !!");
             await turnContext.SendActivityAsync(message);
         }
 
@@ -172,13 +172,13 @@ namespace Microsoft.BotBuilder.Bots
                             new CardAction
                             {
                                 Type = ActionTypes.MessageBack,
-                                Title = "Teams Me",
+                                Title = "Me",
                                 Text = "Who"
                             },
                             new CardAction
                             {
                                 Type = ActionTypes.MessageBack,
-                                Title = "Teams Notification",
+                                Title = "Notification",
                                 Text = "Notice"
                             },
                             new CardAction
@@ -213,7 +213,6 @@ namespace Microsoft.BotBuilder.Bots
             foreach (var teamMember in membersAdded)
             {
                 await turnContext.SendActivityAsync(MessageFactory.Text($"Welcome to access {teamMember.GivenName} {teamMember.Surname}."), cancellationToken);
-                await MenuCardActivityAsync((ITurnContext<IMessageActivity>)turnContext, cancellationToken);
             }
         }
 

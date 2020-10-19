@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using TeamsCaptionBot.Resources;
 
-public class AdaptiveCardCaption : ICardCaption
+public class AdaptiveCardCaption : IAdaptiveCardCaption
 {
     // This array contains the file location of our adaptive cards
     private readonly string[] _cards =

@@ -14,8 +14,8 @@ namespace SpeechAPI
         private static SpeechRecognizer speechRecognizer;
         private string _speechSubscriptionKey;
         private string _speechServiceRegion;
-        private delegate void SendMessageCallback(HeroCard card, string msg);
-        private delegate void SendMessageUpdateCallback(HeroCard card, string msg);
+        private delegate void SendMessageCallback(HeroCard card, bool isInitialRecognizing);
+        private delegate void SendMessageDeleteCallback(string activityId);
 
         public SpeechTextRecognizer(IConfiguration config)
         {
@@ -53,37 +53,30 @@ namespace SpeechAPI
                 }
             }
         }
-        
+
         public async Task RecognizeSpeechContinualAsyncStart(ITurnContext<IMessageActivity> turnContext)
         {
             var config = SpeechConfig.FromSubscription(_speechSubscriptionKey, _speechServiceRegion);
             string[] languages = { "ja-JP" }; //, "en-US", "en-IN", "en-GB" };
             var language = AutoDetectSourceLanguageConfig.FromLanguages(languages);
             var stopRecognition = new TaskCompletionSource<int>();
-            HeroCard card = null;
-            bool createCard = true;
+            string tempCardActivityId = "";
+            bool isInitialRecognizing = true;
 
-            SendMessageCallback msgDelegate = async (HeroCard card, string message) =>
+            SendMessageCallback msgDelegate = async (HeroCard card, bool isInitialRecognizing) =>
             {
-                var userName = turnContext.Activity.From.Name;
-                card.Text = message;
-                card.Subtitle = card.Subtitle + $"<{userName}>";
                 var activity = MessageFactory.Attachment(card.ToAttachment());
+                ResourceResponse response = await turnContext.SendActivityAsync(activity);
 
-                await turnContext.SendActivityAsync(activity);
+                if(isInitialRecognizing)
+                    tempCardActivityId = response.Id;
+                
+                Console.WriteLine("tempCardActivityId: ", tempCardActivityId);
             };
 
-            SendMessageUpdateCallback updateDelegate = async (HeroCard card, string message) =>
+            SendMessageDeleteCallback msgDelete = async (string activityId) =>
             {
-                card.Title = "I've been updated";
-                card.Text = message;
-                var activity = MessageFactory.Attachment(card.ToAttachment());
-                if(activity.Id == null)
-                {
-                    activity.Id = turnContext.Activity.ReplyToId;
-                }
-
-                await turnContext.UpdateActivityAsync(activity);
+                await turnContext.DeleteActivityAsync(activityId);
             };
 
             using (var audioConfig = AudioConfig.FromDefaultMicrophoneInput())
@@ -91,24 +84,21 @@ namespace SpeechAPI
 
                 using (var recognizer = new SpeechRecognizer(config, language, audioConfig))
                 {
+                    speechRecognizer = recognizer;
                     // Subscribes to events.
                     recognizer.Recognizing += (s, e) =>
                     {
                         string message = e.Result.Text;
                         Console.WriteLine($"RECOGNIZING: Text={message}");
 
-                        //Kim: Maybe for the processing speed of async, the update process seems to be delayed than recognizing.
-                        //it should find a workaround bypassing and pending process before submitting it.
-                        //if (createCard)
-                        //{
-                        //    card = new HeroCardCaption().createCard();
-                        //    msgDelegate(card, message);
-                        //    createCard = false;
-                        //}
-                        //else
-                        //{
-                        //    updateDelegate(card, message);
-                        //}
+                        if (isInitialRecognizing)
+                        {
+                            var recognizing = new HeroCardRecognizing();
+                            var card = recognizing.createCard();
+
+                            msgDelegate(card, isInitialRecognizing);
+                            isInitialRecognizing = false;
+                        }
                     };
 
                     recognizer.Recognized += (s, e) =>
@@ -116,13 +106,23 @@ namespace SpeechAPI
                         if (e.Result.Reason == ResultReason.RecognizedSpeech)
                         {
                             string message = e.Result.Text;
+                            if(string.IsNullOrEmpty(message.Trim()) == false)
+                            {
+                                var caption = new HeroCardCaption();
+                                var card = caption.createCard();
+                                caption.updateCard(turnContext, card, message);
 
-                            card = new HeroCardCaption().createCard();
-                            msgDelegate(card, message);
+                                msgDelegate(card, isInitialRecognizing);
 
-                            //updateDelegate(card, message);
-                            //createCard = true;
-                            Console.WriteLine($"RECOGNIZED: Text={message}");
+                                isInitialRecognizing = true;
+
+                                if (string.IsNullOrEmpty(tempCardActivityId) == false)
+                                {
+                                    msgDelete(tempCardActivityId);
+                                    tempCardActivityId = "";
+                                }
+                                Console.WriteLine($"RECOGNIZED: Text={message}");
+                            }
                         }
                         else if (e.Result.Reason == ResultReason.NoMatch)
                         {
@@ -162,20 +162,21 @@ namespace SpeechAPI
                     // Waits for completion.
                     // Use Task.WaitAny to keep the task rooted.
                     Task.WaitAny(new[] { stopRecognition.Task });
-
-                    speechRecognizer = recognizer;
                 }
             }
         }
 
         public async Task RecognizeSpeechContinualAsyncStop()
         {
-            if(speechRecognizer != null)
+            try
             {
-                // Stops recognition.
                 await speechRecognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
+                Console.WriteLine("\n    BBBBB Session stopped event.", speechRecognizer);
             }
-
+            catch
+            {
+                Console.WriteLine("\n    CCCCC Session stopped event.", speechRecognizer);
+            }
         }
 
     }

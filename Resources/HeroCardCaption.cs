@@ -2,6 +2,7 @@ using Microsoft.Bot.Schema;
 using System;
 using System.Collections.Generic;
 using TeamsCaptionBot.Resources;
+using Microsoft.Bot.Builder;
 
 public class HeroCardCaption
 {
@@ -10,7 +11,6 @@ public class HeroCardCaption
     {
         var heroCard = new HeroCard
         {
-            //Title = "Recognized",
             Subtitle = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
             Buttons = new List<CardAction> {
                 new CardAction
@@ -25,9 +25,11 @@ public class HeroCardCaption
         return heroCard;
     }
 
-    public Attachment updateCard(HeroCard card, string message)
+    public Attachment updateCard(ITurnContext<IMessageActivity> turnContext, HeroCard card, string message)
     {
+        var userName = turnContext.Activity.From.Name;
         card.Text = message;
+        card.Subtitle = card.Subtitle + $"<{userName}>";
 
         return card.ToAttachment();
     }
