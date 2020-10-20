@@ -1,8 +1,8 @@
 using Microsoft.Bot.Schema;
 
-namespace TeamsCaptionBot.Resources
+namespace AdaptiveCards
 {
-    interface IAdaptiveCardCaption
+    interface IAdaptiveCard
     {
         Attachment createCard(string message);
     }

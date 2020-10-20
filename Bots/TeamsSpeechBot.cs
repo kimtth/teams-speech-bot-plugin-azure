@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using SpeechAPI;
+using AdaptiveCards;
 
 namespace Microsoft.BotBuilder.Bots
 {
@@ -31,12 +32,20 @@ namespace Microsoft.BotBuilder.Bots
             speechRecognizer = new SpeechTextRecognizer(_config);
         }
 
-
-
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             turnContext.Activity.RemoveRecipientMention();
-            var text = turnContext.Activity.Text.Trim().ToLower();
+            var text = turnContext.Activity.Text;
+            if (turnContext.Activity.Text == null)
+            {
+                var jobject = turnContext.Activity.Value as JObject; //Kim: When get data from submit action of adaptive card.
+                text = jobject.GetValue("command").Value<string>();
+            }
+            else
+            {
+                text = turnContext.Activity.Text.Trim().ToLower();
+            }
+
 
             if (text.Contains("hello") || text.Contains("help") || text.Contains("menu"))
             {
@@ -58,10 +67,6 @@ namespace Microsoft.BotBuilder.Bots
             {
                 await NotificationActivityAsync(turnContext, cancellationToken);
             }
-            //else if (text.Contains("adaptive"))
-            //{
-            //    await AdaptiveCardDisplayActivityAsync(turnContext, cancellationToken);
-            //}
             else if (text.Contains("delete"))
             {
                 await DeleteCardActivityAsync(turnContext, cancellationToken);
@@ -76,9 +81,10 @@ namespace Microsoft.BotBuilder.Bots
             }
         }
 
-        private Task SettingActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        private async Task SettingActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            var cardAttachment = new AdaptiveCardSetting().createCard();
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(cardAttachment), cancellationToken);
         }
 
         protected async Task NotificationActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -147,64 +153,13 @@ namespace Microsoft.BotBuilder.Bots
             var teamsChannelId = turnContext.Activity.TeamsGetChannelId();
             var teamsId = turnContext.Activity.TeamsGetTeamInfo();
 
-            var card = new HeroCard
-            {
-                Buttons = new List<CardAction>
-                        {
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Start Recording",
-                                Text = "Start Recording"
-                            },
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Stop Recording",
-                                Text = "Stop Recording"
-                            },
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Help / Menu",
-                                Text = "Help"
-                            },
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Me",
-                                Text = "Who"
-                            },
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Notification",
-                                Text = "Notice"
-                            },
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Adaptive Card",
-                                Text = "adaptive"
-                            },
-                            new CardAction
-                            {
-                                Type = ActionTypes.MessageBack,
-                                Title = "Settings",
-                                Text = "setting"
-                            }
-                        }
-            };
-
+            var card = new HeroCardWelcome().createCard();
             await SendMenuCard(turnContext, card, cancellationToken);
         }
 
         private async Task SendMenuCard(ITurnContext<IMessageActivity> turnContext, HeroCard card, CancellationToken cancellationToken)
         {
-            card.Title = "Welcome!";
-
             var activity = MessageFactory.Attachment(card.ToAttachment());
-
             await turnContext.SendActivityAsync(activity, cancellationToken);
         }
 

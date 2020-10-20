@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using AdaptiveCards;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.CognitiveServices.Speech;
@@ -14,7 +15,7 @@ namespace SpeechAPI
         private static SpeechRecognizer speechRecognizer;
         private string _speechSubscriptionKey;
         private string _speechServiceRegion;
-        private delegate void SendMessageCallback(HeroCard card, bool isInitialRecognizing);
+        private delegate void SendMessageCallback(Attachment card, bool isInitialRecognizing);
         private delegate void SendMessageDeleteCallback(string activityId);
 
         public SpeechTextRecognizer(IConfiguration config)
@@ -63,9 +64,9 @@ namespace SpeechAPI
             string tempCardActivityId = "";
             bool isInitialRecognizing = true;
 
-            SendMessageCallback msgDelegate = async (HeroCard card, bool isInitialRecognizing) =>
+            SendMessageCallback msgDelegate = async (Attachment card, bool isInitialRecognizing) =>
             {
-                var activity = MessageFactory.Attachment(card.ToAttachment());
+                var activity = MessageFactory.Attachment(card);
                 ResourceResponse response = await turnContext.SendActivityAsync(activity);
 
                 if(isInitialRecognizing)
@@ -93,7 +94,7 @@ namespace SpeechAPI
 
                         if (isInitialRecognizing)
                         {
-                            var recognizing = new HeroCardRecognizing();
+                            var recognizing = new AdaptiveCardRecognizing();
                             var card = recognizing.createCard();
 
                             msgDelegate(card, isInitialRecognizing);
@@ -108,9 +109,8 @@ namespace SpeechAPI
                             string message = e.Result.Text;
                             if(string.IsNullOrEmpty(message.Trim()) == false)
                             {
-                                var caption = new HeroCardCaption();
-                                var card = caption.createCard();
-                                caption.updateCard(turnContext, card, message);
+                                var caption = new AdaptiveCardMessage();
+                                var card = caption.createCard(message);
 
                                 msgDelegate(card, isInitialRecognizing);
 
