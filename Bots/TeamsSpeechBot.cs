@@ -1,21 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using AdaptiveCards;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using SpeechAPI;
-using AdaptiveCards;
 using Repository;
-using System;
+using SpeechAPI;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using TranslateService;
 
 namespace Microsoft.BotBuilder.Bots

@@ -1,7 +1,8 @@
 ﻿
-# Teams Conversation Bot
+# Teams Conversation Bot 
+## Integration with The Speech service, part of Azure Cognitive Services
 
-Bot Framework v4 Conversation Bot sample for Teams.
+Bot Framework v4 Conversation Bot for Teams.
 
 This bot has been created using [Bot Framework](https://dev.botframework.com). This sample shows
 how to incorporate basic conversational flow into a Teams application. It also illustrates a few of the Teams specific calls you can make from your bot.
@@ -20,19 +21,13 @@ the Teams service needs to call into the bot.
 1) Clone the repository
 
     ```bash
-    git clone https://github.com/Microsoft/botbuilder-samples.git
+    git clone https://github.com/{userId}/teams-minutes-bot-plugin-azure.git
     ```
-
-1) If you are using Visual Studio
-   - Launch Visual Studio
-   - File -> Open -> Project/Solution
-   - Navigate to `samples/csharp_dotnetcore/57.teams-conversation-bot` folder
-   - Select `TeamsConversationBot.csproj` file
 
 1) Run ngrok - point to port 3978
 
     ```bash
-    ngrok http -host-header=rewrite 3978
+    ngrok http 3978 -host-header="localhost:3978"
     ```
 
 1) Create [Bot Framework registration resource](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-quickstart-registration) in Azure
@@ -53,21 +48,22 @@ the Teams service needs to call into the bot.
 
 You can interact with this bot by sending it a message, or selecting a command from the command list. The bot will respond to the following strings.
 
-1. **Show Welcome**
-  - **Result:** The bot will send the welcome card for you to interact with
-  - **Valid Scopes:** personal, group chat, team chat
-2. **MentionMe**
-  - **Result:** The bot will respond to the message and mention the user
-  - **Valid Scopes:** personal, group chat, team chat
-3. **MessageAllMembers**
-  - **Result:** The bot will send a 1-on-1 message to each member in the current conversation (aka on the conversation's roster).
-  - **Valid Scopes:** personal, group chat, team chat
-
-You can select an option from the command list by typing ```@TeamsConversationBot``` into the compose message area and ```What can I do?``` text above the compose area.
-
-### Avoiding Permission-Related Errors
-
-You may encounter permission-related errors when sending a proactive message. This can often be mitigated by using `MicrosoftAppCredentials.TrustServiceUrl()`. See [the documentation](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-proactive-message?view=azure-bot-service-4.0&tabs=csharp#avoiding-401-unauthorized-errors) for more information.
+1. **Start Recording**
+  - **Result:** The bot will send a request to Speech SDK for starting voice recognition.
+  - **During Recognizing**
+  ![Recognizing](./Screenshot/recognizing.png "Recognizing Dialog")
+  - **Recognized:** The bot will send a response of speech recognition result with translated text, which is translated by Azure Translate, part of Azure Cognitive Service. 
+  ![Recognized](./Screenshot/message.png "Recognized Dialog")
+2. **Stop Recording**
+  - **Result:** The bot will send a request to Speech SDK for stopping voice recognition.
+3. **Me**
+  - **Result:** The bot will send a response of who is a current user that is fetched from Teams Context.
+4. **Help**
+- **Result:** The bot will send the welcome card with supported commands list.
+![Welcome](./Screenshot/welcome.png "Welcome Dialog")
+5. **Settings**
+- **Result:** The configuration dialog for setting source language of Speech recognition.
+![Settings](./Screenshot/setting.png "Settings Dialog")
 
 ## Deploy the bot to Azure
 

@@ -1,7 +1,6 @@
-using Microsoft.Bot.Schema;
-using System;
-using System.Collections.Generic;
 using Microsoft.Bot.Builder;
+using Microsoft.Bot.Schema;
+using System.Collections.Generic;
 
 namespace AdaptiveCards
 {
