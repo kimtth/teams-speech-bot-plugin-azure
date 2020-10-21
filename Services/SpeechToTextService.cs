@@ -7,6 +7,8 @@ using Microsoft.Bot.Schema;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Configuration;
+using Repository;
+using TranslateService;
 
 namespace SpeechAPI
 {
@@ -15,13 +17,17 @@ namespace SpeechAPI
         private static SpeechRecognizer speechRecognizer;
         private string _speechSubscriptionKey;
         private string _speechServiceRegion;
+        private Translator _translator;
+        private InMemoryRepository _repository;
         private delegate void SendMessageCallback(Attachment card, bool isInitialRecognizing);
         private delegate void SendMessageDeleteCallback(string activityId);
 
-        public SpeechTextRecognizer(IConfiguration config)
+        public SpeechTextRecognizer(IConfiguration config, Translator translator, InMemoryRepository repository)
         {
             _speechSubscriptionKey = config["SpeechSubscriptionKey"];
             _speechServiceRegion = config["SpeechServiceRegion"];
+            _repository = repository;
+            _translator = translator;
         }
 
         public async Task RecognizeSpeechOnceAsync()
@@ -58,7 +64,10 @@ namespace SpeechAPI
         public async Task RecognizeSpeechContinualAsyncStart(ITurnContext<IMessageActivity> turnContext)
         {
             var config = SpeechConfig.FromSubscription(_speechSubscriptionKey, _speechServiceRegion);
-            string[] languages = { "ja-JP" }; //, "en-US", "en-IN", "en-GB" };
+            var language_setting = _repository.GetSetting("language");
+            language_setting = string.IsNullOrEmpty(language_setting) ? "ja-JP" : language_setting;
+
+            string[] languages = { language_setting };
             var language = AutoDetectSourceLanguageConfig.FromLanguages(languages);
             var stopRecognition = new TaskCompletionSource<int>();
             string tempCardActivityId = "";
@@ -109,7 +118,7 @@ namespace SpeechAPI
                             string message = e.Result.Text;
                             if(string.IsNullOrEmpty(message.Trim()) == false)
                             {
-                                var caption = new AdaptiveCardMessage();
+                                var caption = new AdaptiveCardMessage(_translator, _repository);
                                 var card = caption.createCard(message);
 
                                 msgDelegate(card, isInitialRecognizing);
@@ -171,11 +180,10 @@ namespace SpeechAPI
             try
             {
                 await speechRecognizer.StopContinuousRecognitionAsync().ConfigureAwait(false);
-                Console.WriteLine("\n    BBBBB Session stopped event.", speechRecognizer);
             }
             catch
             {
-                Console.WriteLine("\n    CCCCC Session stopped event.", speechRecognizer);
+                Console.WriteLine("----", speechRecognizer);
             }
         }
 

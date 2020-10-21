@@ -36,12 +36,12 @@ namespace AdaptiveCards
                                 Title = "Help",
                                 Text = "Help"
                             },
-                            //new CardAction
-                            //{
-                            //    Type = ActionTypes.MessageBack,
-                            //    Title = "Me",
-                            //    Text = "Who"
-                            //},
+                            new CardAction
+                            {
+                                Type = ActionTypes.MessageBack,
+                                Title = "Me",
+                                Text = "Who"
+                            },
                             //new CardAction
                             //{
                             //    Type = ActionTypes.MessageBack,

@@ -12,32 +12,36 @@
             "text": "🌈 Select your language for speech recognition from the dropdown below and press \"Set Default Language\".",
             "wrap": true
         },
-        {
-            "type": "Input.ChoiceSet",
-            "choices": [
-                {
-                    "title": "English",
-                    "value": "en"
-                },
-                {
-                    "title": "Japanese",
-                    "value": "ja"
-                }
-            ],
-            "placeholder": "Placeholder text",
-            "separator": true,
-            "wrap": true,
-            "spacing": "Small",
-            "id": "setting_langage"
-        },
+      {
+        "type": "Input.ChoiceSet",
+        "choices": [
+          {
+            "title": "English",
+            "value": "\"en-US\", \"en-IN\", \"en-GB\""
+          },
+          {
+            "title": "Japanese",
+            "value": "ja-JP"
+          }
+        ],
+        "placeholder": "Placeholder text",
+        "separator": true,
+        "wrap": true,
+        "spacing": "Small",
+        "id": "setting_language",
+        "value": "ja-JP"
+      },
         {
             "type": "ActionSet",
             "actions": [
-                {
-                    "type": "Action.Submit",
-                    "title": "Set Default Language",
-                    "id": "setting_submit"
+              {
+                "type": "Action.Submit",
+                "title": "Set Default Language",
+                "id": "setting_submit",
+                "data": {
+                  "command": "config"
                 }
+              }
             ]
         }
     ],

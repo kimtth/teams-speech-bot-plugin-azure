@@ -14,6 +14,9 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using SpeechAPI;
 using AdaptiveCards;
+using Repository;
+using System;
+using TranslateService;
 
 namespace Microsoft.BotBuilder.Bots
 {
@@ -23,13 +26,17 @@ namespace Microsoft.BotBuilder.Bots
         private string _appPassword;
         private readonly IConfiguration _config;
         private SpeechTextRecognizer speechRecognizer;
+        private InMemoryRepository _repository;
+        private Translator _translator;
 
         public TeamsSpeechBot(IConfiguration config)
         {
             _config = config;
             _appId = config["MicrosoftAppId"];
             _appPassword = config["MicrosoftAppPassword"];
-            speechRecognizer = new SpeechTextRecognizer(_config);
+            _translator = new Translator(_config);
+            _repository = new InMemoryRepository();
+            speechRecognizer = new SpeechTextRecognizer(_config, _translator, _repository);
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -38,16 +45,22 @@ namespace Microsoft.BotBuilder.Bots
             var text = turnContext.Activity.Text;
             if (turnContext.Activity.Text == null)
             {
+                //Console.WriteLine(turnContext.Activity.Value);
                 var jobject = turnContext.Activity.Value as JObject; //Kim: When get data from submit action of adaptive card.
                 text = jobject.GetValue("command").Value<string>();
+
+                if (text.Contains("config"))
+                {
+                    var setting_language = jobject.GetValue("setting_language").Value<string>();
+                    _repository.SetSetting("language", setting_language);
+                }
             }
             else
             {
                 text = turnContext.Activity.Text.Trim().ToLower();
             }
 
-
-            if (text.Contains("hello") || text.Contains("help") || text.Contains("menu"))
+            if (text.Contains("hi") || text.Contains("hello") || text.Contains("help") || text.Contains("menu"))
             {
                 await MenuCardActivityAsync(turnContext, cancellationToken);
             }
@@ -75,10 +88,22 @@ namespace Microsoft.BotBuilder.Bots
             {
                 await SettingActivityAsync(turnContext, cancellationToken);
             }
+            else if (text.Contains("config"))
+            {
+                await ConfigurationActivityAsync(turnContext, cancellationToken);
+            }
             else
             {
                 await MenuCardActivityAsync(turnContext, cancellationToken);
             }
+        }
+
+        private async Task ConfigurationActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var language_setting = _repository.GetSetting("language");
+            var language_message = language_setting.Contains("ja") ? "Japanese" : "English";
+            var message = MessageFactory.Text($"Got it! 👌 The Recognition Language is set as {language_message}.");
+            await turnContext.SendActivityAsync(message);
         }
 
         private async Task SettingActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -118,12 +143,6 @@ namespace Microsoft.BotBuilder.Bots
 
             var message = MessageFactory.Text($"You are: {member.Name}.");
             await turnContext.SendActivityAsync(message);
-        }
-
-        private async Task AdaptiveCardDisplayActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
-            var cardAttachment = new AdaptiveCardCaption().createCard("");
-            await turnContext.SendActivityAsync(MessageFactory.Attachment(cardAttachment), cancellationToken);
         }
 
         private async Task DeleteCardActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)

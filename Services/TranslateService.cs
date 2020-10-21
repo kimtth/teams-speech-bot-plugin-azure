@@ -51,19 +51,20 @@ namespace TranslateService
         public int[] TransSentLen { get; set; }
     }
 
-    class Translator
+    public class Translator
     {
         private string _subscriptionKey;
         private string _endpoint;
-
+        private string _region;
         public Translator(IConfiguration config)
         {
             _subscriptionKey = config["TranslateSubscriptionKey"];
             _endpoint = config["TranslateEndPoint"];
+            _region = config["TranslateServiceRegion"];
         }
 
         // Async call to the Translator Text API
-        public async Task TranslateTextRequest(string fromTo, string textToTranslate)
+        private async Task<string> TranslateTextRequest(string fromTo, string textToTranslate)
         {
             object[] body = new object[] { new { Text = textToTranslate } };
             var requestBody = JsonConvert.SerializeObject(body);
@@ -75,29 +76,31 @@ namespace TranslateService
                 request.RequestUri = new Uri(_endpoint + fromTo);
                 request.Content = new StringContent(requestBody, Encoding.UTF8, "application/json");
                 request.Headers.Add("Ocp-Apim-Subscription-Key", _subscriptionKey);
+                request.Headers.Add("Ocp-Apim-Subscription-Region", _region);
 
                 HttpResponseMessage response = await client.SendAsync(request).ConfigureAwait(false);
                 string result = await response.Content.ReadAsStringAsync();
                 TranslationResult[] deserializedOutput = JsonConvert.DeserializeObject<TranslationResult[]>(result);
 
+                string resultText = "";
                 foreach (TranslationResult o in deserializedOutput)
                 {
-                    // Print the detected input languge and confidence score.
-                    Console.WriteLine("Detected input language: {0}\nConfidence score: {1}\n", o.DetectedLanguage.Language, o.DetectedLanguage.Score);
-                    // Iterate over the results and print each translation.
                     foreach (Translation t in o.Translations)
                     {
                         Console.WriteLine("Translated to {0}: {1}", t.To, t.Text);
+                        resultText += t.Text; 
                     }
                 }
+                return resultText;
             }
         }
 
         // https://docs.microsoft.com/azure/cognitive-services/translator/reference/v3-0-translate
-        public async Task translateExecuteAsync(string from, string to, string textToTranslate)
+        public async Task<string> TranslateExecuteAsync(string from, string to, string textToTranslate)
         {
-            string fromTo = $"/translate?api-version=3.0&&from={from}&to={to}";
-            await TranslateTextRequest(fromTo, textToTranslate);
+            string fromTo = $"/translate?api-version=3.0&from={from}&to={to}";
+            string resultText = await TranslateTextRequest(fromTo, textToTranslate);
+            return resultText;
         }
         
     }
