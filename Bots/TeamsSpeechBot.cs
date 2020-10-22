@@ -9,6 +9,7 @@ using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using Repository;
+using Services;
 using SpeechAPI;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,18 +23,18 @@ namespace Microsoft.BotBuilder.Bots
         private string _appId;
         private string _appPassword;
         private readonly IConfiguration _config;
-        private SpeechTextRecognizer speechRecognizer;
-        private InMemoryRepository _repository;
-        private Translator _translator;
+        private ISpeechToTextService _speechRecognizer;
+        private IInfoRepository _repository;
+        private ITranslateService _translator;
 
-        public TeamsSpeechBot(IConfiguration config)
+        public TeamsSpeechBot(IConfiguration config, IInfoRepository repository, ISpeechToTextService speechRecognizer, ITranslateService translator)
         {
             _config = config;
+            _repository = repository;
             _appId = config["MicrosoftAppId"];
             _appPassword = config["MicrosoftAppPassword"];
-            _translator = new Translator(_config);
-            _repository = new InMemoryRepository();
-            speechRecognizer = new SpeechTextRecognizer(_config, _translator, _repository);
+            _translator = translator;
+            _speechRecognizer = speechRecognizer;
         }
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
@@ -105,7 +106,7 @@ namespace Microsoft.BotBuilder.Bots
 
         private async Task SettingActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            var cardAttachment = new AdaptiveCardSetting().createCard();
+            var cardAttachment = AdaptiveCardFactory.getCard("SETTING");
             await turnContext.SendActivityAsync(MessageFactory.Attachment(cardAttachment), cancellationToken);
         }
 
@@ -152,13 +153,13 @@ namespace Microsoft.BotBuilder.Bots
             var message = MessageFactory.Text($"Let me start recording !!");
             await turnContext.SendActivityAsync(message);
 
-            await speechRecognizer.RecognizeSpeechContinualAsyncStart(turnContext);
+            await _speechRecognizer.RecognizeSpeechContinualAsyncStart(turnContext);
         }
 
         private async Task StopRecordActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            if (speechRecognizer != null)
-                await speechRecognizer.RecognizeSpeechContinualAsyncStop();
+            if (_speechRecognizer != null)
+                await _speechRecognizer.RecognizeSpeechContinualAsyncStop();
 
             var message = MessageFactory.Text($"Stop recording !!");
             await turnContext.SendActivityAsync(message);

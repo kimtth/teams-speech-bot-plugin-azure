@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Services;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -49,7 +50,7 @@ namespace TranslateService
         public int[] TransSentLen { get; set; }
     }
 
-    public class Translator
+    public class Translator : ITranslateService
     {
         private string _subscriptionKey;
         private string _endpoint;

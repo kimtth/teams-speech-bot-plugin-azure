@@ -2,6 +2,7 @@ using AdaptiveCards.Templating;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using Repository;
+using Services;
 using System;
 using System.IO;
 using TranslateService;
@@ -10,9 +11,10 @@ namespace AdaptiveCards
 {
     public class AdaptiveCardMessage : IAdaptiveCard
     {
-        private Translator _translator;
-        private InMemoryRepository _repository;
-        public AdaptiveCardMessage(Translator translator, InMemoryRepository repository)
+        private ITranslateService _translator;
+        private IInfoRepository _repository;
+
+        public AdaptiveCardMessage(ITranslateService translator, IInfoRepository repository)
         {
             _translator = translator;
             _repository = repository;

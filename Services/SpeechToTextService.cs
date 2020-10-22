@@ -5,23 +5,25 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Configuration;
 using Repository;
+using Services;
 using System;
 using System.Threading.Tasks;
 using TranslateService;
 
 namespace SpeechAPI
 {
-    class SpeechTextRecognizer
+    class SpeechTextRecognizer : ISpeechToTextService
     {
         private static SpeechRecognizer speechRecognizer;
         private string _speechSubscriptionKey;
         private string _speechServiceRegion;
-        private Translator _translator;
-        private InMemoryRepository _repository;
+        private readonly ITranslateService _translator;
+        private readonly IInfoRepository _repository;
+
         private delegate void SendMessageCallback(Attachment card, bool isInitialRecognizing);
         private delegate void SendMessageDeleteCallback(string activityId);
 
-        public SpeechTextRecognizer(IConfiguration config, Translator translator, InMemoryRepository repository)
+        public SpeechTextRecognizer(IConfiguration config, ITranslateService translator, IInfoRepository repository)
         {
             _speechSubscriptionKey = config["SpeechSubscriptionKey"];
             _speechServiceRegion = config["SpeechServiceRegion"];
@@ -102,8 +104,7 @@ namespace SpeechAPI
 
                         if (isInitialRecognizing)
                         {
-                            var recognizing = new AdaptiveCardRecognizing();
-                            var card = recognizing.createCard();
+                            var card = AdaptiveCardFactory.getCard("RECOGNIZING");
 
                             msgDelegate(card, isInitialRecognizing);
                             isInitialRecognizing = false;
@@ -117,8 +118,7 @@ namespace SpeechAPI
                             string message = e.Result.Text;
                             if(string.IsNullOrEmpty(message.Trim()) == false)
                             {
-                                var caption = new AdaptiveCardMessage(_translator, _repository);
-                                var card = caption.createCard(message);
+                                var card = AdaptiveCardFactory.getCard(_translator, _repository, message);
 
                                 msgDelegate(card, isInitialRecognizing);
 

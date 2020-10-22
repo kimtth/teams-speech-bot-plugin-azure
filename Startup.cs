@@ -9,6 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.BotBuilder.Bots;
 using Microsoft.Extensions.Hosting;
+using Repository;
+using TranslateService;
+using Services;
+using SpeechAPI;
 
 namespace Microsoft.BotBuilder
 {
@@ -28,6 +32,10 @@ namespace Microsoft.BotBuilder
 
             // Create the Bot Framework Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
+            //Kim: Dependency Injection for Singleton
+            services.AddSingleton<IInfoRepository, InMemoryRepository>();
+            services.AddSingleton<ITranslateService>(new Translator(Configuration));
+            services.AddSingleton<ISpeechToTextService>(x => new SpeechTextRecognizer(Configuration, x.GetRequiredService<ITranslateService>(), x.GetRequiredService<IInfoRepository>()));
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, TeamsSpeechBot>();

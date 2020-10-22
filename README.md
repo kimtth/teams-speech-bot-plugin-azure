@@ -51,19 +51,27 @@ You can interact with this bot by sending it a message, or selecting a command f
 1. **Start Recording**
   - **Result:** The bot will send a request to Speech SDK for starting voice recognition.
   - **During Recognizing**
-  ![Recognizing](./Screenshot/recognizing.png "Recognizing Dialog")
+  
+  ![Recognizing](./Screenshot/recognizing.PNG?raw=true)
+  
   - **Recognized:** The bot will send a response of speech recognition result with translated text, which is translated by Azure Translate, part of Azure Cognitive Service. 
-  ![Recognized](./Screenshot/message.png "Recognized Dialog")
+  
+  ![Recognized](./Screenshot/message.PNG?raw=true)
+  
 2. **Stop Recording**
   - **Result:** The bot will send a request to Speech SDK for stopping voice recognition.
 3. **Me**
   - **Result:** The bot will send a response of who is a current user that is fetched from Teams Context.
 4. **Help**
 - **Result:** The bot will send the welcome card with supported commands list.
-![Welcome](./Screenshot/welcome.png "Welcome Dialog")
+
+![Welcome](./Screenshot/welcome.PNG?raw=true)
+
 5. **Settings**
 - **Result:** The configuration dialog for setting source language of Speech recognition.
-![Settings](./Screenshot/setting.png "Settings Dialog")
+
+![Settings](./Screenshot/setting.PNG?raw=true)
+
 
 ## Deploy the bot to Azure
 
@@ -72,4 +80,3 @@ To learn more about deploying a bot to Azure, see [Deploy your bot to Azure](htt
 ## Further reading
 
 - [How Microsoft Teams bots work](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-basics-teams?view=azure-bot-service-4.0&tabs=javascript)
-
