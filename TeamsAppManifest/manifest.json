@@ -3,10 +3,10 @@
   "manifestVersion": "devPreview",
   "version": "1.0.0",
   "id": "1963bed9-eee8-4d4a-a77c-b993fe4b02a6",
-  "packageName": "tcs.japan.teams.ai-caption",
+  "packageName": "demo.teams.minutes.bot",
   "developer": {
-    "name": "skeletonKim",
-    "websiteUrl": "https://www.tcs.com",
+    "name": "kimtth",
+    "websiteUrl": "https://www.teams.com",
     "privacyUrl": "https://www.teams.com/privacy",
     "termsOfUseUrl": "https://www.teams.com/termsofuser"
   },
@@ -15,12 +15,12 @@
     "outline": "outline.png"
   },
   "name": {
-    "short": "ai-caption-bot",
+    "short": "voice-minutes-bot",
     "full": ""
   },
   "description": {
-    "short": "demo (ai-caption)",
-    "full": "demo (ai-caption) full description"
+    "short": "demo (voice-minutes-bot)",
+    "full": "demo (voice-minutes-bot) full description"
   },
   "accentColor": "#FFFFFF",
   "bots": [

@@ -11,7 +11,7 @@ namespace AdaptiveCards
         {
             var heroCard = new HeroCard
             {
-                Title = "Welcome to AI-Caption! How can I help you?",
+                Title = "Welcome to Demo Bot! How can I help you?",
                 Text = "Please select your language in Setting. " +
                 "Once press [Start Recording] and I will detect your message and instantly translate it. " +
                 "Currently, I support from English to Japanese, vice versa.",
