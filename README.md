@@ -54,7 +54,7 @@ You can interact with this bot by sending it a message, or selecting a command f
   
   ![Recognizing](./Screenshot/recognizing.PNG?raw=true)
   
-  - **Recognized:** The bot will send a response of speech recognition result with translated text, which is translated by Azure Translate, part of Azure Cognitive Service. 
+  - **Recognized:** The bot will send a response of speech recognition result with translated text, which is translated by Azure Translate, part of Azure Cognitive Service. Simultaneously, The Recognizing Dialog is going to be deleted. 
   
   ![Recognized](./Screenshot/message.PNG?raw=true)
   
