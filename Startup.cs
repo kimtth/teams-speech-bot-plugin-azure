@@ -32,8 +32,9 @@ namespace Microsoft.BotBuilder
 
             // Create the Bot Framework Adapter with error handling enabled.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
-            //Kim: Dependency Injection for Singleton
-            services.AddSingleton<IInfoRepository, InMemoryRepository>();
+            //Kim: Dependency Injection
+            //Kim: Singleton: Unit of Program / Scoped: Unit of Controller / Transient: Unit of Serivce
+            services.AddTransient<IInfoRepository, InMemoryRepository>();
             services.AddSingleton<ITranslateService>(new Translator(Configuration));
             services.AddSingleton<ISpeechToTextService>(x => new SpeechTextRecognizer(Configuration, x.GetRequiredService<ITranslateService>(), x.GetRequiredService<IInfoRepository>()));
 
